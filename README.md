@@ -181,6 +181,10 @@ To test the automated email dispatch service using Supabase Edge Functions:
 
 ## 📝 Staging Credentials & Testing
 If you executed the migration `003_seed_data.sql`, the database is loaded with mock employee entries and testing parameters.
+*   **Admin Console Staging Credentials**:
+    *   **Email**: `admin@toyota.in`
+    *   **Password**: `password`
+    *(Note: You can easily create this user in your Supabase project under **Authentication** -> **Users** -> **Add User** with these credentials for instant local and staging logins.)*
 *   **Sample Payroll CSV**: A preconfigured sample CSV file `sample_payroll.csv` is provided in the project root directory. You can drag and drop this file directly into the **Upload Portal** page to test the bulk payroll generation engine instantly.
 *   **Salary Slip PDFs**: Navigating to the **Salary Slips** tab allows you to preview, export, and download highly detailed salary slip PDFs built directly using our custom-styled jsPDF theme.
 
