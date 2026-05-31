@@ -18,3 +18,8 @@ frontend/dist/
 
 # Logs
 *.log
+
+# Supabase Local Cache & State
+supabase/.temp/
+supabase/.temp
+.temp/
