@@ -1,6 +1,7 @@
-import { useState } from 'react'
-import { Settings as SettingsIcon, Mail, Lock, Bell, Palette, Save, Eye, EyeOff, Shield } from 'lucide-react'
+import { useState, useEffect } from 'react'
+import { Settings as SettingsIcon, Mail, Lock, Bell, Palette, Save, Eye, EyeOff, Shield, Loader2 } from 'lucide-react'
 import toast from 'react-hot-toast'
+import { supabase } from '../lib/supabase'
 
 const Section = ({ icon: Icon, title, children }) => (
   <div className="card animate-fade-in-up" style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
@@ -53,13 +54,57 @@ const Toggle = ({ label, sub, value, onChange }) => (
 
 export default function Settings() {
   const [showPass, setShowPass] = useState(false)
+  const [loading, setLoading] = useState(false)
   const [smtp, setSmtp] = useState({ host: 'smtp.gmail.com', port: '587', user: 'admin@company.com', pass: '' })
   const [company, setCompany] = useState({ name: 'TechCorp Pvt. Ltd.', address: 'Bangalore, India', cin: 'U72200KA2020PTC123456' })
   const [notifs, setNotifs] = useState({ onUpload: true, onGenerate: true, onSend: true, weeklyReport: false })
   const [security, setSecurity] = useState({ passwordProtect: false, auditLog: true, twoFactor: false })
 
-  const handleSave = (section) => {
-    toast.success(`${section} settings saved!`)
+  // Fetch settings on mount
+  useEffect(() => {
+    async function loadSettings() {
+      setLoading(true)
+      const { data, error } = await supabase.from('system_settings').select('*')
+      if (error) {
+        console.error('Failed to load settings:', error.message)
+      } else if (data) {
+        data.forEach(item => {
+          if (item.key === 'smtp_config') setSmtp(item.value)
+          if (item.key === 'company_config') setCompany(item.value)
+        })
+      }
+      setLoading(false)
+    }
+    loadSettings()
+  }, [])
+
+  const handleSave = async (section) => {
+    setLoading(true)
+    let key = ''
+    let value = {}
+
+    if (section === 'SMTP') {
+      key = 'smtp_config'
+      value = smtp
+    } else if (section === 'Company') {
+      key = 'company_config'
+      value = company
+    }
+
+    if (key) {
+      const { error } = await supabase
+        .from('system_settings')
+        .upsert({ key, value, updated_at: new Date().toISOString() })
+
+      if (error) {
+        toast.error(`Failed to save ${section} settings: ${error.message}`)
+      } else {
+        toast.success(`${section} settings saved live to Supabase!`)
+      }
+    } else {
+      toast.success(`${section} settings saved!`)
+    }
+    setLoading(false)
   }
 
   return (
